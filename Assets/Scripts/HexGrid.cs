@@ -70,6 +70,32 @@ public class HexGrid : MonoBehaviour
         cell.coordinates = HexCoordinates.FromOffsetCoordinates(x, z);
         cell.color = defaultColor;
         cell.name = "Hex Cell: " + cell.coordinates.ToString();
+
+        if (x > 0)
+        {
+            cell.SetNeighbor(HexDirection.W, _cells[index- 1]);
+        }
+
+        if (z > 0)
+        {
+            if ((z & 1) == 0)
+            {
+                cell.SetNeighbor(HexDirection.SE, _cells[index - width]);
+
+                if (x > 0)
+                {
+                    cell.SetNeighbor(HexDirection.SW, _cells[index - width - 1]);
+                }
+            }
+            else
+            {
+                cell.SetNeighbor(HexDirection.SW, _cells[index - width]);
+                if (x < width - 1)
+                {
+                    cell.SetNeighbor(HexDirection.SE, _cells[index - width + 1]);
+                }
+            }
+        }
         
         TextMeshProUGUI label = Instantiate<TextMeshProUGUI>(cellLabelPrefab, _gridCanvas.transform, false);
         label.rectTransform.anchoredPosition =
