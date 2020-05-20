@@ -8,6 +8,25 @@ public class HexCell : MonoBehaviour
     public Color color;
     [SerializeField] private HexCell[] neighbors;
 
+    public RectTransform uiRect;
+    public int Elevation
+    {
+        get => elevation;
+        set
+        {
+            elevation = value;
+            Vector3 positon = transform.localPosition;
+            positon.y = value * HexMetrics.ELEVATION_STEP;
+            transform.localPosition = positon;
+
+            Vector3 uiPosition = uiRect.localPosition;
+            uiPosition.z = elevation * -HexMetrics.ELEVATION_STEP;
+            uiRect.localPosition = uiPosition;
+        }
+    }
+
+    private int elevation;
+
     public HexCell GetNeighbor(HexDirection direction)
     {
         return neighbors[(int)direction];
@@ -18,49 +37,17 @@ public class HexCell : MonoBehaviour
         neighbors[(int) direction] = cell;
         cell.neighbors[(int)direction.Opposite()] = this;
     }
-}
 
-public static class HexMetrics
-{
-    public const float SOLID_FACTOR = 0.75f;
-    public const float BLEND_FACTOR = 1f - SOLID_FACTOR;
-    
-    public const float OUTER_RADIUS = 10f;
-    public const float INNER_RADIUS = OUTER_RADIUS * 0.866025404f;
-    
-    public static readonly Vector3[] Corners = {
-        new Vector3(0f, 0f, OUTER_RADIUS),
-        new Vector3(INNER_RADIUS, 0f, 0.5f * OUTER_RADIUS),
-        new Vector3(INNER_RADIUS, 0f, -0.5f * OUTER_RADIUS),
-        new Vector3(0f, 0f, -OUTER_RADIUS),
-        new Vector3(-INNER_RADIUS, 0f, -0.5f * OUTER_RADIUS),
-        new Vector3(-INNER_RADIUS, 0f, 0.5f * OUTER_RADIUS),
-        new Vector3(0f, 0f, OUTER_RADIUS) // last vertex from first angle
-    };
-
-    public static Vector3 GetFirstCorner(HexDirection direction)
+    public HexEdgeType GetEdgeType(HexDirection direction)
     {
-        return Corners[(int) direction];
+        return HexMetrics.GetEdgeType(elevation, neighbors[(int) direction].elevation);
     }
 
-    public static Vector3 GetSecondCorner(HexDirection direction)
+    public HexEdgeType GetEdgeType(HexCell otherCell)
     {
-        return Corners[(int) direction + 1];
-    }
-
-    public static Vector3 GetFirstSolidCorner(HexDirection direction)
-    {
-        return Corners[(int) direction] * SOLID_FACTOR;
-    }
-
-    public static Vector3 GetSecondSolidCorner(HexDirection direction)
-    {
-        return Corners[(int) direction + 1] * SOLID_FACTOR;
-    }
-
-    public static Vector3 GetBridge(HexDirection direction)
-    {
-        return (Corners[(int) direction] + Corners[(int) direction + 1]) * BLEND_FACTOR;
+        return HexMetrics.GetEdgeType(elevation, otherCell.Elevation);
     }
 }
+
+
 
