@@ -23,10 +23,14 @@ public class HexGrid : MonoBehaviour
     #region COLORS
 
     public Color defaultColor;
-    public Color touchedColor;
 
     #endregion
-    
+
+    #region NOISE
+
+    public Texture2D noiseSource;
+
+    #endregion
     #region REFERENCES
 
     private HexCell[] _cells;
@@ -35,6 +39,11 @@ public class HexGrid : MonoBehaviour
 
     #endregion
     
+    
+    void OnEnable () 
+    {
+        HexMetrics.noiseSource = noiseSource;
+    }
     
     void Awake()
     {
@@ -102,6 +111,8 @@ public class HexGrid : MonoBehaviour
             new Vector2(position.x, position.z);
         label.text = cell.coordinates.ToStringOnSeparateLines();
         cell.uiRect = label.rectTransform;
+
+        /*cell.Elevation = 0;*/
     }
     
 
