@@ -6,6 +6,7 @@ public class HexCell : MonoBehaviour
 {
     public HexCoordinates coordinates;
     public Color color;
+    public HexGridChunk chunk;
     [SerializeField] private HexCell[] neighbors;
 
     public RectTransform uiRect;
@@ -14,6 +15,9 @@ public class HexCell : MonoBehaviour
         get => _elevation;
         set
         {
+            if (_elevation == value) {
+                return;
+            }
             _elevation = value;
             Vector3 position = transform.localPosition;
             position.y = value * HexMetrics.ELEVATION_STEP;
@@ -23,12 +27,27 @@ public class HexCell : MonoBehaviour
             transform.localPosition = position;
 
             Vector3 uiPosition = uiRect.localPosition;
-            uiPosition.z = _elevation * -HexMetrics.ELEVATION_STEP;
+            uiPosition.z = -position.y;
             uiRect.localPosition = uiPosition;
+            Refresh();
         }
     }
 
-    private int _elevation;
+    public Color Color
+    {
+        get => color;
+        set
+        {
+            if (color == value)
+            {
+                return;
+            }
+
+            color = value;
+            Refresh();
+        }
+    }
+    private int _elevation = int.MinValue;
 
     public Vector3 Position => transform.localPosition;
 
@@ -51,6 +70,21 @@ public class HexCell : MonoBehaviour
     public HexEdgeType GetEdgeType(HexCell otherCell)
     {
         return HexMetrics.GetEdgeType(_elevation, otherCell.Elevation);
+    }
+
+    public void Refresh()
+    {
+        if (!chunk) return;
+
+        chunk.Refresh();
+        
+        foreach (var neighbor in neighbors)
+        {
+            if (neighbor != null && neighbor.chunk != null)
+            {
+                neighbor.chunk.Refresh();
+            }
+        }
     }
 }
 

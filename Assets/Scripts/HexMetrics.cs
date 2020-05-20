@@ -19,6 +19,9 @@ public static class HexMetrics
     public const float ELEVATION_PERTURB_STRENGTH = 1.5f;
     public const float NOISE_SCALE = 0.003f;
 
+    public const int CHUNK_SIZE_X = 5, CHUNK_SIZE_Z = 5;
+    
+
     public static Texture2D noiseSource;
     
     public static readonly Vector3[] Corners = {
