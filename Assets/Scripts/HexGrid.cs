@@ -151,4 +151,31 @@ public class HexGrid : MonoBehaviour
     {
         HexMetrics.noiseSource = noiseSource;
     }
+
+    public HexCell GetCell(HexCoordinates coordinates)
+    {
+        int z = coordinates.Z;
+
+        if (z < 0 || z >= _cellCountZ)
+        {
+            return null;
+        }
+        
+        int x = coordinates.X + z / 2;
+        
+        if (x < 0 || x >= _cellCountX)
+        {
+            return null;
+        }
+        
+        return _cells[x + z * _cellCountX];
+    }
+
+    public void ShowUi(bool visible)
+    {
+        foreach (var t in _chunks)
+        {
+            t.ShowUI(visible);
+        }
+    }
 }
