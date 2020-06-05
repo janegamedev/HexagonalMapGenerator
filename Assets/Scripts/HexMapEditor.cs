@@ -9,12 +9,21 @@ public class HexMapEditor : MonoBehaviour
 {
     public Color[] colors;
     public HexGrid hexGrid;
-    
+
+    private OptionalToggle _riverMode;
     private Color _activeColor;
     private int _activeElevation;
     private int _brushSize;
 
     private bool _applyColor, _applyElevation;
+
+    #region RIVER PLACEMENT
+
+    private bool _isDrag;
+    private HexDirection _dragDirection;
+    private HexCell _previousCell;
+
+    #endregion
 
     private void Awake()
     {
@@ -27,6 +36,10 @@ public class HexMapEditor : MonoBehaviour
         {
             HandleInput();
         }
+        else
+        {
+            _previousCell = null;
+        }
     }
 
    private void HandleInput()
@@ -34,8 +47,39 @@ public class HexMapEditor : MonoBehaviour
        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
        if (Physics.Raycast(ray, out RaycastHit hit))
        {
-           EditCells(hexGrid.GetCell(hit.point));
+           HexCell currentCell = hexGrid.GetCell(hit.point);
+
+           if (_previousCell && _previousCell != currentCell)
+           {
+               ValidateDrag(currentCell);
+           }
+           else
+           {
+               _isDrag = false;
+           }
+           
+           EditCells(currentCell);
+           _previousCell = currentCell;
+           _isDrag = true;
        }
+       else
+       {
+           _previousCell = null;
+       }
+   }
+
+   private void ValidateDrag(HexCell currentCell)
+   {
+       for (var dragDirection = HexDirection.NE; dragDirection < HexDirection.NW; dragDirection++)
+       {
+           if (_previousCell.GetNeighbor(dragDirection))
+           {
+               _isDrag = true;
+               return;
+           }
+       }
+
+       _isDrag = false;
    }
 
    private void EditCells(HexCell center)
@@ -73,6 +117,18 @@ public class HexMapEditor : MonoBehaviour
            {
                cell.Elevation = _activeElevation;
            }
+
+           if (_riverMode == OptionalToggle.NO)
+           {
+               cell.RemoveRiver();
+           }
+           else if (_isDrag && _riverMode == OptionalToggle.YES)
+           {
+               HexCell otherCell = cell.GetNeighbor(_dragDirection.Opposite());
+               if (otherCell) {
+                   otherCell.SetOutgoingRiver(_dragDirection);
+               }
+           }
        }
    }
 
@@ -105,4 +161,16 @@ public class HexMapEditor : MonoBehaviour
     {
         hexGrid.ShowUi(visible);
     }
+
+    public void SetRiverMode(int mode)
+    {
+        _riverMode = (OptionalToggle) mode;
+    }
+}
+
+public enum OptionalToggle
+{
+    IGNORE,
+    YES,
+    NO
 }

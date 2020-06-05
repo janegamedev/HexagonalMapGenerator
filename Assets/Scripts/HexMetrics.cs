@@ -20,6 +20,8 @@ public static class HexMetrics
     public const float NOISE_SCALE = 0.003f;
 
     public const int CHUNK_SIZE_X = 5, CHUNK_SIZE_Z = 5;
+
+    public const float STREAM_BED_ELEVATION_OFFSET = -1f;
     
 
     public static Texture2D noiseSource;
